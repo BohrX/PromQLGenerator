@@ -12,15 +12,19 @@ public class Constant {
 
     public static final String BACK_QUOTES = "`";
 
-    public static final String FILTER_SPLIT = ",";
+    public static final String COMMA = ",";
 
     public static final String CONDITION_FILTER = "{%s}";
 
     public static final String DURATION_SELECTOR = "[%s]";
 
+    public static final String STRING_PARTERN = DOUBLE_QUOTES + "%s" + DOUBLE_QUOTES;
+
     public static final String PARENTHESES = "(%s)";
 
-    public static final String OFFSET = " offset ";
+
+    /*-------------------------操作符 或许有天会移动-------------------------*/
+    public static final String OFFSET = "offset";
 
     public static final String BOOL = "bool";
 }

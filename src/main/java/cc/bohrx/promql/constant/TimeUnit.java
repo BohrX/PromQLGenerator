@@ -3,13 +3,13 @@ package cc.bohrx.promql.constant;
 public enum TimeUnit {
     SECOND("s"), MINUTE("m"), HOUR("h"), DAY("d"), WEEK("w"), YEAR("y");
 
-    private String literal;
+    private String value;
 
-    TimeUnit(String literal) {
-        this.literal = literal;
+    TimeUnit(String value) {
+        this.value = value;
     }
 
-    public String getLiteral() {
-        return literal;
+    public String getValue() {
+        return value;
     }
 }
