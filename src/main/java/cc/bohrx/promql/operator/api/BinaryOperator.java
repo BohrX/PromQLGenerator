@@ -6,6 +6,10 @@ import cc.bohrx.promql.expression.Expression;
 
 public interface BinaryOperator extends IOperator {
 
-    BinaryOperation apply(Expression arg1, Expression arg2);
+    int MAX_PRIORITY = 6;
+
+    int getPriority();
+
+    BinaryOperation<? extends BinaryOperator> apply(Expression arg1, Expression arg2);
 
 }

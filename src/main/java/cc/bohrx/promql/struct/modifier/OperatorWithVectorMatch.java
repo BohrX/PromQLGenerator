@@ -2,14 +2,12 @@ package cc.bohrx.promql.struct.modifier;
 
 
 import cc.bohrx.promql.expression.BinaryOperation;
-import cc.bohrx.promql.expression.Comparison;
 import cc.bohrx.promql.expression.Expression;
-import cc.bohrx.promql.operator.api.Compartor;
 import cc.bohrx.promql.operator.api.VectorMatchableOperator;
 
 import java.util.Objects;
 
-public class OperatorWithVectorMatch<T extends VectorMatchableOperator> implements Compartor {
+public class OperatorWithVectorMatch<T extends VectorMatchableOperator> implements VectorMatchableOperator {
 
     private T operator;
 
@@ -25,8 +23,13 @@ public class OperatorWithVectorMatch<T extends VectorMatchableOperator> implemen
     }
 
     @Override
-    public BinaryOperation apply(Expression arg1, Expression arg2) {
-        return new Comparison(arg1, this, arg2);
+    public int getPriority() {
+        return operator.getPriority();
+    }
+
+    @Override
+    public BinaryOperation<OperatorWithVectorMatch<T>> apply(Expression arg1, Expression arg2) {
+        return new BinaryOperation<>(arg1, this, arg2);
     }
 
     @Override

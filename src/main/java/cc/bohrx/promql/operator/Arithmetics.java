@@ -11,12 +11,19 @@ import cc.bohrx.promql.struct.modifier.VectorMatchs;
 import cc.bohrx.promql.struct.vector.filter.Filter;
 
 public enum Arithmetics implements Arithmetic {
-    PLUS("+"), MINUS("-"), MULTI("*"), DIVIDE("/"), MODU("%"), POWER("^");
+    PLUS(3, "+"), MINUS(3, "-"), MULTI(2, "*"), DIVIDE(2, "/"), MODU(2, "%"), POWER(1, "^");
+    private final int priority;
 
     private String literal;
 
-    Arithmetics(String literal) {
+    Arithmetics(int priority, String literal) {
+        this.priority = priority;
         this.literal = literal;
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
     }
 
     @Override
@@ -24,22 +31,21 @@ public enum Arithmetics implements Arithmetic {
         return literal;
     }
 
-    public BinaryOperation apply(double arg1, double arg2) {
-        return new BinaryOperation(Scalar.of(arg1), this, Scalar.of(arg2));
+    public BinaryOperation<Arithmetic> apply(double arg1, double arg2) {
+        return new BinaryOperation<>(Scalar.of(arg1), this, Scalar.of(arg2));
     }
 
-    public BinaryOperation apply(double arg1, Expression arg2) {
-        return new BinaryOperation(Scalar.of(arg1), this, arg2);
+    public BinaryOperation<Arithmetic> apply(double arg1, Expression arg2) {
+        return new BinaryOperation<>(Scalar.of(arg1), this, arg2);
     }
 
-    public BinaryOperation apply(Expression arg1, double arg2) {
-        return new BinaryOperation(arg1, this, Scalar.of(arg2));
+    public BinaryOperation<Arithmetic> apply(Expression arg1, double arg2) {
+        return new BinaryOperation<>(arg1, this, Scalar.of(arg2));
     }
-
 
     @Override
-    public BinaryOperation apply(Expression arg1, Expression arg2) {
-        return new BinaryOperation(arg1, this, arg2);
+    public BinaryOperation<Arithmetic> apply(Expression arg1, Expression arg2) {
+        return new BinaryOperation<>(arg1, this, arg2);
     }
 
     public OperatorWithVectorMatch<Arithmetic> vectorMatch(VectorMatchs vectorMatch) {
@@ -55,6 +61,6 @@ public enum Arithmetics implements Arithmetic {
         Filter filter2 = MatchOperators.EQUAL.apply("cpu-1", ".*");
         Vector v1 = Vector.metric("cpu_idle").appendFilter(filter1).appendFilter(filter2).build();
         Vector v2 = Vector.metric("cpu_await").build();
-        System.out.println(MINUS.vectorMatchMulti(VectorMatchs.IGNORING, true).setMatchLabels("abd", "233").apply(v1, v2));
+        System.out.println(MINUS.apply(1.23, MINUS.vectorMatchMulti(VectorMatchs.IGNORING, true).setMatchLabels("abd", "233").apply(v1, v2)));
     }
 }

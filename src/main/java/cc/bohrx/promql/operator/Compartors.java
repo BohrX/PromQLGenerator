@@ -3,7 +3,6 @@ package cc.bohrx.promql.operator;
 
 import cc.bohrx.promql.constant.Constant;
 import cc.bohrx.promql.expression.BinaryOperation;
-import cc.bohrx.promql.expression.Comparison;
 import cc.bohrx.promql.expression.Expression;
 import cc.bohrx.promql.expression.type.Scalar;
 import cc.bohrx.promql.expression.type.vector.Vector;
@@ -15,7 +14,7 @@ import cc.bohrx.promql.struct.vector.filter.Filter;
 
 public enum Compartors implements Compartor {
     EQUAL("=="), NOT_EQUAL("!="), GREATER(">"), LESS("<"), NOT_LESS(">="), NOT_GREATER("<=");
-
+    private final int priority = 4;
 
     private String literal;
 
@@ -24,6 +23,11 @@ public enum Compartors implements Compartor {
     Compartors(String literal) {
         this.literal = literal;
         withBool = new CompartorWithBool(this);
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
     }
 
     @Override
@@ -43,17 +47,22 @@ public enum Compartors implements Compartor {
         return new OperatorWithVectorMatch<>(this, groupLeft ? vectorMatch.groupLeft() : vectorMatch.groupRight());
     }
 
-    public Comparison apply(double arg1, Expression arg2) {
-        return new Comparison(Scalar.of(arg1), this, arg2);
+    public BinaryOperation<Compartor> apply(double arg1, double arg2) {
+        return withBool().apply(arg1, arg2);
     }
 
-    public Comparison apply(Expression arg1, double arg2) {
-        return new Comparison(arg1, this, Scalar.of(arg2));
+    public BinaryOperation<Compartor> apply(double arg1, Expression arg2) {
+        return new BinaryOperation<>(Scalar.of(arg1), this, arg2);
     }
+
+    public BinaryOperation<Compartor> apply(Expression arg1, double arg2) {
+        return new BinaryOperation<>(arg1, this, Scalar.of(arg2));
+    }
+
 
     @Override
-    public Comparison apply(Expression arg1, Expression arg2) {
-        return new Comparison(arg1, this, arg2);
+    public BinaryOperation<Compartor> apply(Expression arg1, Expression arg2) {
+        return new BinaryOperation<>(arg1, this, arg2);
     }
 
     public static class CompartorWithBool implements Compartor {
@@ -64,21 +73,21 @@ public enum Compartors implements Compartor {
             this.compartor = compartor;
         }
 
-        public Comparison apply(double arg1, double arg2) {
-            return new Comparison(Scalar.of(arg1), this, Scalar.of(arg1));
+        public BinaryOperation<Compartor> apply(double arg1, double arg2) {
+            return new BinaryOperation<>(Scalar.of(arg1), this, Scalar.of(arg1));
         }
 
-        public Comparison apply(double arg1, Expression arg2) {
-            return new Comparison(Scalar.of(arg1), this, arg2);
+        public BinaryOperation<Compartor> apply(double arg1, Expression arg2) {
+            return new BinaryOperation<>(Scalar.of(arg1), this, arg2);
         }
 
-        public Comparison apply(Expression arg1, double arg2) {
-            return new Comparison(arg1, this, Scalar.of(arg2));
+        public BinaryOperation<Compartor> apply(Expression arg1, double arg2) {
+            return new BinaryOperation<>(arg1, this, Scalar.of(arg2));
         }
 
         @Override
-        public BinaryOperation apply(Expression arg1, Expression arg2) {
-            return new Comparison(arg1, this, arg2);
+        public BinaryOperation<Compartor> apply(Expression arg1, Expression arg2) {
+            return new BinaryOperation<>(arg1, this, arg2);
         }
 
         @Override
@@ -86,6 +95,10 @@ public enum Compartors implements Compartor {
             return compartor.getLiteral() + Constant.SPACE + Constant.BOOL;
         }
 
+        @Override
+        public int getPriority() {
+            return compartor.getPriority();
+        }
 
         public OperatorWithVectorMatch<Compartor> vectorMatch(VectorMatchs vectorMatch) {
             return new OperatorWithVectorMatch<>(this, vectorMatch.get());
